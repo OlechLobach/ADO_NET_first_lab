@@ -1,9 +1,9 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using System.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
 
-namespace Data
+namespace ADO_NET_first_lab
 {
     public class Student
     {
@@ -26,7 +26,8 @@ namespace Data
                 using (SqlConnection connection = new SqlConnection(ConnectionString))
                 {
                     connection.Open();
-                    string sql = @"CREATE TABLE StudentsGrades (
+                    string sql = @"IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='StudentsGrades' and xtype='U')
+                                   CREATE TABLE StudentsGrades (
                                     Id INT PRIMARY KEY IDENTITY(1,1),
                                     FullName NVARCHAR(100) NOT NULL,
                                     GroupName NVARCHAR(50) NOT NULL,
@@ -79,18 +80,19 @@ namespace Data
                     string sql = "SELECT * FROM StudentsGrades";
                     SqlCommand cmd = new SqlCommand(sql, connection);
                     SqlDataReader reader = cmd.ExecuteReader();
+
                     while (reader.Read())
                     {
-                        Student student = new Student();
-                        student.Id = Convert.ToInt32(reader["Id"]);
-                        student.FullName = Convert.ToString(reader["FullName"]);
-                        student.GroupName = Convert.ToString(reader["GroupName"]);
-                        student.AverageGrade = Convert.ToDecimal(reader["AverageGrade"]);
-                        student.MinSubject = Convert.ToString(reader["MinSubject"]);
-                        student.MaxSubject = Convert.ToString(reader["MaxSubject"]);
-                        students.Add(student);
+                        students.Add(new Student
+                        {
+                            Id = (int)reader["Id"],
+                            FullName = (string)reader["FullName"],
+                            GroupName = (string)reader["GroupName"],
+                            AverageGrade = (decimal)reader["AverageGrade"],
+                            MinSubject = reader["MinSubject"] as string,
+                            MaxSubject = reader["MaxSubject"] as string
+                        });
                     }
-                    reader.Close();
                 }
             }
             catch (SqlException ex)
