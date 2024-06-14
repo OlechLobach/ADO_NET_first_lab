@@ -1,103 +1,74 @@
-﻿using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Data;
+using System.Data.SqlClient;
 
-namespace Data
+namespace ADO_NET_first_lab
 {
-    public class Student
+    public static class DBManager
     {
-        public int Id { get; set; }
-        public string FullName { get; set; }
-        public string GroupName { get; set; }
-        public decimal AverageGrade { get; set; }
-        public string MinSubject { get; set; }
-        public string MaxSubject { get; set; }
-    }
+        private static string connectionString = @"Data Source=YourServerName;Initial Catalog=VegetablesAndFruits;Integrated Security=True";
 
-    public class DBManager
-    {
-        private string ConnectionString = "Data Source=10.0.0.40,1433;Initial Catalog=StudentsGrades;User ID=student;Password=1111;Encrypt=True;TrustServerCertificate=True;";
-
-        public void CreateStudentsGradesTable()
+        public static SqlConnection GetConnection()
         {
-            try
+            SqlConnection connection = new SqlConnection(connectionString);
+            connection.Open();
+            return connection;
+        }
+
+        public static void CreateProductsTable()
+        {
+            using (SqlConnection connection = GetConnection())
             {
-                using (SqlConnection connection = new SqlConnection(ConnectionString))
-                {
-                    connection.Open();
-                    string sql = @"CREATE TABLE StudentsGrades (
-                                    Id INT PRIMARY KEY IDENTITY(1,1),
-                                    FullName NVARCHAR(100) NOT NULL,
-                                    GroupName NVARCHAR(50) NOT NULL,
-                                    AverageGrade DECIMAL(5, 2) NOT NULL,
-                                    MinSubject NVARCHAR(50) NULL,
-                                    MaxSubject NVARCHAR(50) NULL
-                                )";
-                    SqlCommand cmd = new SqlCommand(sql, connection);
-                    cmd.ExecuteNonQuery();
-                }
-            }
-            catch (SqlException ex)
-            {
-                throw new Exception("Failed to create StudentsGrades table: " + ex.Message);
+                string createTableQuery = @"
+                    CREATE TABLE Products (
+                        Id INT PRIMARY KEY IDENTITY,
+                        Name NVARCHAR(100) NOT NULL,
+                        Type NVARCHAR(50) NOT NULL,
+                        Color NVARCHAR(50) NOT NULL,
+                        Calories INT NOT NULL
+                    )";
+
+                SqlCommand command = new SqlCommand(createTableQuery, connection);
+                command.ExecuteNonQuery();
+                Console.WriteLine("Table 'Products' created.");
             }
         }
 
-        public void InsertStudent(Student student)
+        public static void InsertTestData()
         {
-            try
+            using (SqlConnection connection = GetConnection())
             {
-                using (SqlConnection connection = new SqlConnection(ConnectionString))
-                {
-                    connection.Open();
-                    string sql = @"INSERT INTO StudentsGrades (FullName, GroupName, AverageGrade, MinSubject, MaxSubject) 
-                                   VALUES (@FullName, @GroupName, @AverageGrade, @MinSubject, @MaxSubject)";
-                    SqlCommand cmd = new SqlCommand(sql, connection);
-                    cmd.Parameters.AddWithValue("@FullName", student.FullName);
-                    cmd.Parameters.AddWithValue("@GroupName", student.GroupName);
-                    cmd.Parameters.AddWithValue("@AverageGrade", student.AverageGrade);
-                    cmd.Parameters.AddWithValue("@MinSubject", student.MinSubject);
-                    cmd.Parameters.AddWithValue("@MaxSubject", student.MaxSubject);
-                    cmd.ExecuteNonQuery();
-                }
-            }
-            catch (SqlException ex)
-            {
-                throw new Exception("Failed to insert student: " + ex.Message);
+                string insertDataQuery = @"
+                    INSERT INTO Products (Name, Type, Color, Calories)
+                    VALUES
+                        ('Apple', 'Fruit', 'Red', 52),
+                        ('Banana', 'Fruit', 'Yellow', 89),
+                        ('Carrot', 'Vegetable', 'Orange', 41),
+                        ('Tomato', 'Vegetable', 'Red', 18)";
+
+                SqlCommand command = new SqlCommand(insertDataQuery, connection);
+                int rowsAffected = command.ExecuteNonQuery();
+                Console.WriteLine($"{rowsAffected} rows inserted into 'Products'.");
             }
         }
 
-        public List<Student> SelectAllStudents()
+        public static DataTable GetAllProducts()
         {
-            List<Student> students = new List<Student>();
-            try
+            DataTable table = new DataTable();
+            using (SqlConnection connection = GetConnection())
             {
-                using (SqlConnection connection = new SqlConnection(ConnectionString))
-                {
-                    connection.Open();
-                    string sql = "SELECT * FROM StudentsGrades";
-                    SqlCommand cmd = new SqlCommand(sql, connection);
-                    SqlDataReader reader = cmd.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        Student student = new Student();
-                        student.Id = Convert.ToInt32(reader["Id"]);
-                        student.FullName = Convert.ToString(reader["FullName"]);
-                        student.GroupName = Convert.ToString(reader["GroupName"]);
-                        student.AverageGrade = Convert.ToDecimal(reader["AverageGrade"]);
-                        student.MinSubject = Convert.ToString(reader["MinSubject"]);
-                        student.MaxSubject = Convert.ToString(reader["MaxSubject"]);
-                        students.Add(student);
-                    }
-                    reader.Close();
-                }
+                string query = "SELECT * FROM Products";
+                SqlCommand command = new SqlCommand(query, connection);
+                SqlDataAdapter adapter = new SqlDataAdapter(command);
+                adapter.Fill(table);
             }
-            catch (SqlException ex)
-            {
-                throw new Exception("Failed to retrieve students: " + ex.Message);
-            }
-            return students;
+            return table;
+        }
+
+        public static void CloseConnection(SqlConnection connection)
+        {
+            if (connection.State == ConnectionState.Open)
+                connection.Close();
         }
     }
 }

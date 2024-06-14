@@ -1,67 +1,23 @@
 ﻿<Window x:Class="ADO_NET_first_lab.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:ADO_NET_first_lab"
-        mc:Ignorable="d"
-        Title="Students Grades" Height="450" Width="800">
-    <Window.Resources>
-        <!-- Style for TextBox with Placeholder -->
-        <Style x:Key="PlaceholderTextBox" TargetType="TextBox">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type TextBox}">
-                        <Border BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                Background="{TemplateBinding Background}"
-                                Padding="{TemplateBinding Padding}">
-                            <Grid>
-                                <TextBlock x:Name="PlaceholderTextBlock"
-                                           Text="{TemplateBinding Tag}"
-                                           Foreground="{StaticResource {x:Static SystemColors.GrayTextBrushKey}}"
-                                           Visibility="Collapsed"/>
-                                <ScrollViewer x:Name="PART_ContentHost"
-                                              Focusable="false"
-                                              HorizontalScrollBarVisibility="Hidden"
-                                              VerticalScrollBarVisibility="Hidden"/>
-                            </Grid>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <MultiTrigger>
-                                <MultiTrigger.Conditions>
-                                    <Condition Property="Text" Value=""/>
-                                </MultiTrigger.Conditions>
-                                <Setter TargetName="PlaceholderTextBlock" Property="Visibility" Value="Visible"/>
-                            </MultiTrigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </Window.Resources>
-
+        Title="Vegetables and Fruits Database" Height="450" Width="800"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextElement.FontFamily="{DynamicResource MaterialDesignFont}"
+        Background="{DynamicResource MaterialDesignPaper}">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="239*"/>
-            <ColumnDefinition Width="561*"/>
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition/>
-            <RowDefinition Height="60"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- DataGrid для відображення даних -->
-        <DataGrid x:Name="dgStudents" Grid.Row="0" Grid.ColumnSpan="2" AutoGenerateColumns="True" Background="White"/>
+        <TextBlock Grid.Row="0" Margin="10" FontSize="20" FontWeight="Bold" Text="Vegetables and Fruits Database" />
 
-        <!-- Панель для введення нового студента -->
-        <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal">
-            <TextBox x:Name="tbFullName" Width="150" Margin="10" Tag="Full Name" Style="{StaticResource PlaceholderTextBox}"/>
-            <TextBox x:Name="tbGroupName" Width="150" Margin="10" Tag="Group Name" Style="{StaticResource PlaceholderTextBox}"/>
-            <TextBox x:Name="tbAverageGrade" Width="50" Margin="10" Tag="Avg Grade" Style="{StaticResource PlaceholderTextBox}"/>
-            <TextBox x:Name="tbMinSubject" Width="150" Margin="10" Tag="Min Subject" Style="{StaticResource PlaceholderTextBox}"/>
-            <TextBox x:Name="tbMaxSubject" Width="150" Margin="10" Tag="Max Subject" Style="{StaticResource PlaceholderTextBox}"/>
-            <Button Content="Add Student" Width="100" Margin="10" Click="Button_Click"/>
-        </StackPanel>
+        <DataGrid x:Name="dgProducts" Grid.Row="1" AutoGenerateColumns="True" />
     </Grid>
 </Window>
